@@ -1,73 +1,158 @@
-# React + TypeScript + Vite
+# DoodleDream - Interactive Coloring Book
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web-based interactive coloring book application where children can generate AI-powered coloring pages or choose from preset themes, then draw and color using various tools.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **AI Image Generation**: Create custom coloring pages using OpenAI's DALL-E 3 API
+- **Preset Themes**: Quick-pick coloring pages (dinosaur, unicorn, robot, butterfly, car, flower) with three difficulty levels
+- **Drawing Tools**:
+  - Brush tool with adjustable size
+  - Paint bucket for flood fill
+  - Eraser
+- **Color Palette**: 12 preset colors to choose from
+- **Undo Support**: Revert your last 10 actions
+- **Save Artwork**: Download your masterpiece as a PNG file
+- **Touch Support**: Works on tablets and touch devices
+- **High-DPI Support**: Crisp rendering on Retina and high-resolution displays
 
-## React Compiler
+## Difficulty Levels
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Little Kid (4-5)**: Simple shapes with large areas to color
+- **Big Kid (6-7)**: Moderate detail
+- **Expert (8+)**: Intricate designs with more details
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+**Frontend:**
+- React 19
+- TypeScript
+- Vite
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+**Backend:**
+- Node.js with Express
+- OpenAI DALL-E 3 API
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Project Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+color-book/
+├── src/
+│   ├── components/
+│   │   ├── Canvas.tsx      # Drawing canvas with tools
+│   │   ├── Controls.tsx    # Tool and color selection
+│   │   ├── Generator.tsx   # Image generation UI
+│   │   └── Settings.tsx    # API key configuration
+│   ├── services/
+│   │   └── imageGen.ts     # Image generation logic
+│   ├── utils/
+│   │   └── floodFill.ts    # Bucket fill algorithm
+│   ├── App.tsx
+│   └── index.css
+├── server/
+│   ├── index.js            # Express API server
+│   ├── .env                # API keys (not committed)
+│   └── package.json
+├── public/
+│   └── assets/             # Pre-generated coloring pages
+└── package.json
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Prerequisites
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js 18+ installed
+- An OpenAI API key (for custom image generation)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd color-book
+   ```
+
+2. **Install frontend dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Install server dependencies**
+   ```bash
+   cd server
+   npm install
+   ```
+
+4. **Configure your API key**
+
+   Create a `.env` file in the `server/` directory:
+   ```
+   OPENAI_API_KEY=your-openai-api-key-here
+   ```
+
+### Running the Application
+
+1. **Start the backend server** (required for custom image generation)
+   ```bash
+   cd server
+   npm start
+   ```
+   The server runs on `http://localhost:3001`
+
+2. **Start the frontend** (in a new terminal)
+   ```bash
+   npm run dev
+   ```
+   The app runs on `http://localhost:5173` (or next available port)
+
+3. **Open in browser**
+
+   Navigate to the URL shown in your terminal (usually `http://localhost:5173`)
+
+## Usage
+
+1. **Choose a coloring page**:
+   - Click a quick-pick icon (dinosaur, unicorn, etc.) for instant preset images
+   - Or type a custom topic and click "Create!" to generate with AI
+
+2. **Select difficulty**: Use the dropdown to choose complexity level
+
+3. **Color your image**:
+   - Select a color from the palette
+   - Use the brush tool to draw
+   - Use the bucket tool to fill areas
+   - Use the eraser to fix mistakes
+
+4. **Save your work**: Click the "Save" button to download as PNG
+
+## Configuration
+
+### Environment Variables
+
+Create `server/.env` with:
+
+```env
+# Required: OpenAI API key for DALL-E image generation
+OPENAI_API_KEY=sk-...
+
+# Optional: Your production frontend URL for CORS
+FRONTEND_URL=https://your-domain.com
 ```
+
+### API Rate Limiting
+
+The server includes built-in rate limiting (10 requests per minute per IP) to prevent API abuse.
+
+## Building for Production
+
+```bash
+# Build the frontend
+npm run build
+
+# Output will be in the dist/ folder
+```
+
+## License
+
+MIT
