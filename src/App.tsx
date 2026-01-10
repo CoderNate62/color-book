@@ -1,3 +1,8 @@
+/**
+ * DoodleDream - Interactive Coloring Book
+ * Coded by Nate
+ */
+
 import { useState, useRef } from 'react';
 import { Controls } from './components/Controls';
 import Canvas, { type CanvasRef } from './components/Canvas';
@@ -98,6 +103,16 @@ function App() {
           />
         </div>
       </main>
+
+      <footer style={{
+        position: 'absolute',
+        bottom: '4px',
+        right: '8px',
+        fontSize: '0.7rem',
+        color: '#aaa'
+      }}>
+        Coded by Nate
+      </footer>
     </div>
   );
 }
