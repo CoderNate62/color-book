@@ -12,16 +12,16 @@ interface ControlsProps {
 }
 
 const COLORS = [
-    '#FF6B6B', // Red
-    '#4ECDC4', // Teal/Safe Green
-    '#FFE66D', // Yellow
-    '#95E1D3', // Light Green
-    '#F38181', // Pink
-    '#F7D794', // Light Orange
-    '#778BEB', // Blue
-    '#cf6a87', // Purple-ish
-    '#596275', // Dark Grey
+    '#E53935', // Red (primary)
+    '#FDD835', // Yellow (primary)
+    '#1E88E5', // Blue (primary)
+    '#FB8C00', // Orange (secondary)
+    '#43A047', // Green (secondary)
+    '#8E24AA', // Purple (secondary)
+    '#6D4C41', // Brown
+    '#757575', // Grey
     '#000000', // Black
+    '#FFFFFF', // White
 ];
 
 export function Controls({ tool, setTool, color, setColor, brushSize, setBrushSize, onUndo, onSave }: ControlsProps) {
@@ -112,7 +112,7 @@ export function Controls({ tool, setTool, color, setColor, brushSize, setBrushSi
                             height: '36px',
                             borderRadius: '50%',
                             backgroundColor: c,
-                            border: c === color && tool !== 'eraser' ? '4px solid #ddd' : '2px solid transparent',
+                            border: c === color && tool !== 'eraser' ? '4px solid #ddd' : (c === '#FFFFFF' ? '2px solid #ccc' : '2px solid transparent'),
                             cursor: 'pointer',
                             boxShadow: c === color && tool !== 'eraser' ? '0 0 0 2px var(--primary)' : 'none',
                             transition: 'transform 0.1s'

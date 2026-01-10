@@ -4,21 +4,20 @@ const getApiUrl = () => {
   return isLocalhost ? 'http://localhost:3001/api/generate' : '/api/generate';
 };
 
-export const generateImage = async (topic: string, complexity: string): Promise<string> => {
+export const generateImage = async (topic: string, _complexity: string): Promise<string> => {
   const t = topic.toLowerCase();
 
-  // Determine complexity level for pre-loaded assets
-  let level = 'little';
-  if (complexity.includes('intricate') || complexity.includes('complex')) level = 'expert';
-  else if (complexity.includes('moderate')) level = 'big';
-
   // Check for pre-loaded assets first (instant response, browser-cached)
-  if (t.includes('dinosaur')) return `/assets/dinosaur-${level}.png`;
-  if (t.includes('unicorn')) return `/assets/unicorn-${level}.png`;
-  if (t.includes('robot')) return `/assets/robot-${level}.png`;
-  if (t.includes('butterfly')) return `/assets/butterfly-${level}.png`;
-  if (t.includes('car')) return `/assets/car-${level}.png`;
-  if (t.includes('flower')) return `/assets/flower-${level}.png`;
+  if (t.includes('dinosaur')) return `/assets/dinosaur-little.png`;
+  if (t.includes('unicorn')) return `/assets/unicorn-little.png`;
+  if (t.includes('robot')) return `/assets/robot-little.png`;
+  if (t.includes('butterfly')) return `/assets/butterfly-little.png`;
+  if (t.includes('car')) return `/assets/car-little.png`;
+  if (t.includes('flower')) return `/assets/flower-little.png`;
+  if (t.includes('spaceship')) return `/assets/spaceship-little.png`;
+  if (t.includes('castle')) return `/assets/castle-little.png`;
+  if (t.includes('dragon')) return `/assets/dragon-little.png`;
+  if (t.includes('cat')) return `/assets/cat-little.png`;
 
   // For custom prompts, call the backend API with just the topic
   try {
