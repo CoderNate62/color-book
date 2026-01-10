@@ -1,27 +1,48 @@
-export const generateImage = async (prompt: string, apiKey?: string): Promise<string> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
+export const generateImage = async (topic: string, complexity: string): Promise<string> => {
+  const t = topic.toLowerCase();
 
-  const p = prompt.toLowerCase();
-  const timestamp = Date.now();
+  // Determine complexity level for pre-loaded assets
+  let level = 'little';
+  if (complexity.includes('intricate') || complexity.includes('complex')) level = 'expert';
+  else if (complexity.includes('moderate')) level = 'big';
 
-  // 1. Check for local assets first (Quick Picks)
-  if (p.includes('dinosaur')) return `/assets/dinosaur.png?t=${timestamp}`;
-  if (p.includes('unicorn')) return `/assets/unicorn.png?t=${timestamp}`;
-  if (p.includes('robot')) return `/assets/robot.png?t=${timestamp}`;
-  if (p.includes('butterfly')) return `/assets/butterfly.png?t=${timestamp}`;
-  if (p.includes('car')) return `/assets/car.png?t=${timestamp}`;
-  if (p.includes('flower')) return `/assets/flower.png?t=${timestamp}`;
+  // Check for pre-loaded assets first (instant response, browser-cached)
+  if (t.includes('dinosaur')) return `/assets/dinosaur-${level}.png`;
+  if (t.includes('unicorn')) return `/assets/unicorn-${level}.png`;
+  if (t.includes('robot')) return `/assets/robot-${level}.png`;
+  if (t.includes('butterfly')) return `/assets/butterfly-${level}.png`;
+  if (t.includes('car')) return `/assets/car-${level}.png`;
+  if (t.includes('flower')) return `/assets/flower-${level}.png`;
 
-  // 2. If API Key is present, call Real AI (Simulated for this demo, but structure is here)
-  if (apiKey) {
-    console.log("Calling AI with key:", apiKey);
-    // Here you would fetch('https://api.anthropic.com/v1/messages', ...)
-    // For now, we will fallback to mock but simulate "AI" logic
-    // In a real implementation this would return the generated image URL
+  // For custom prompts, call the backend API with just the topic
+  try {
+    console.log(`Calling backend with topic: "${topic}"`);
+    const response = await fetch('http://localhost:3001/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: topic })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const errorMsg = data.error || `Server error (${response.status})`;
+      console.error('Server returned error:', errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    if (!data.image) {
+      throw new Error('No image in response');
+    }
+
+    return data.image;
+
+  } catch (error) {
+    console.error('Backend API call failed:', error);
+    // Re-throw with more context so App.tsx can show a better message
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Cannot connect to server. Make sure the server is running on port 3001.');
+    }
+    throw error;
   }
-
-  // 3. Fallback Mock for custom queries without API Key
-  // Return a generic placeholder or the "Flower" as default if totally unknown
-  return `/assets/flower.png?t=${timestamp}`;
 };

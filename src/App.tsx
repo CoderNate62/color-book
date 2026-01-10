@@ -11,20 +11,18 @@ function App() {
   const [brushSize, setBrushSize] = useState(10);
   const [bgImage, setBgImage] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
-  const [apiKey, setApiKey] = useState('');
 
   const canvasRef = useRef<CanvasRef>(null);
 
-  const handleGenerate = async (prompt: string) => {
+  const handleGenerate = async (topic: string, complexity: string) => {
     setIsLoading(true);
     try {
-      const url = await generateImage(prompt, apiKey);
+      const url = await generateImage(topic, complexity);
       setBgImage(url);
-      // Optional: Clear canvas history when new image loaded?
-      // For now, the Canvas component handles new image loading by clearing internally.
     } catch (e) {
       console.error(e);
-      alert("Failed to generate image. Please try again.");
+      const message = e instanceof Error ? e.message : 'Unknown error';
+      alert(`Failed to generate image: ${message}`);
     } finally {
       setIsLoading(false);
     }
@@ -52,11 +50,16 @@ function App() {
         flexWrap: 'wrap',
         gap: '1rem'
       }}>
-        <h1 style={{ margin: 0, fontSize: '1.5rem', color: 'var(--primary)', flexShrink: 0 }}>
-          🎨 Magic Coloring
-        </h1>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <h1 style={{ margin: 0, fontSize: '1.8rem', color: 'var(--primary)', lineHeight: 1 }}>
+            ☁️ DoodleDream
+          </h1>
+          <span style={{ fontSize: '0.9rem', color: '#666', fontStyle: 'italic', marginLeft: '4px' }}>
+            Color your imagination
+          </span>
+        </div>
         <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-          <Generator onGenerate={handleGenerate} isLoading={isLoading} apiKey={apiKey} setApiKey={setApiKey} />
+          <Generator onGenerate={handleGenerate} isLoading={isLoading} />
         </div>
       </header>
 

@@ -22,14 +22,18 @@ export function Settings({ apiKey, setApiKey }: SettingsProps) {
                 style={{
                     padding: '12px',
                     borderRadius: '8px',
-                    backgroundColor: 'white',
-                    border: '2px solid #ddd',
+                    backgroundColor: apiKey ? '#e6ffe6' : 'white', // Green tint if key exists
+                    border: apiKey ? '2px solid #4CAF50' : '2px solid #ddd',
                     cursor: 'pointer',
-                    color: '#666'
+                    color: '#666',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
                 }}
-                title="Settings"
+                title={apiKey ? "API Key Active" : "Settings"}
             >
-                <SettingsIcon size={20} />
+                <SettingsIcon size={20} color={apiKey ? '#4CAF50' : '#666'} />
+                {apiKey && <span style={{ fontSize: '12px', color: '#4CAF50', fontWeight: 'bold' }}>ON</span>}
             </button>
 
             {isOpen && (

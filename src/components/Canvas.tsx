@@ -19,33 +19,37 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(({ tool, color, brushSize, ini
     const [isDrawing, setIsDrawing] = useState(false);
     const [history, setHistory] = useState<ImageData[]>([]);
     const contextRef = useRef<CanvasRenderingContext2D | null>(null);
+    const overlayRef = useRef<HTMLCanvasElement | null>(null);
+    const dprRef = useRef<number>(1);
 
     // Initialize canvas
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
-        // Handle high DPI displays
-        // const dpr = window.devicePixelRatio || 1;
-        // We'll set the internal resolution to match display size * dpr
-        // But for now, let's keep it simple and just rely on CSS sizing 
-        // and setting width/height attributes to match clientWidth/Height once
-
-        // Actually, to avoid clearing on resize, we should probably set a fixed internal size
-        // or handle resize explicitly. For this MVP, we'll fit to container on mount.
+        // Handle high DPI displays for crisp rendering
+        const dpr = window.devicePixelRatio || 1;
+        dprRef.current = dpr;
         const rect = canvas.parentElement?.getBoundingClientRect();
         if (rect) {
-            canvas.width = rect.width;
-            canvas.height = rect.height;
+            // Set the internal resolution to match display size * device pixel ratio
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
         }
 
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
         if (!ctx) return;
 
+        // Scale context to account for DPI
+        ctx.scale(dpr, dpr);
+
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height); // White background
+        // Use logical dimensions (physical / dpr) since context is scaled
+        const logicalWidth = canvas.width / dpr;
+        const logicalHeight = canvas.height / dpr;
+        ctx.fillRect(0, 0, logicalWidth, logicalHeight);
 
         contextRef.current = ctx;
         saveState(); // Save initial blank state
@@ -56,22 +60,72 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(({ tool, color, brushSize, ini
         if (!initialImage || !contextRef.current || !canvasRef.current) return;
 
         const img = new Image();
-        img.src = initialImage;
         img.crossOrigin = "anonymous"; // Important for editing
-        img.onload = () => {
-            const ctx = contextRef.current!;
-            const canvas = canvasRef.current!;
-            // Center and fit image
-            const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
-            const x = (canvas.width - img.width * scale) / 2;
-            const y = (canvas.height - img.height * scale) / 2;
-
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-            saveState();
+        img.onerror = () => {
+            console.error('Failed to load image:', initialImage);
         };
+        img.onload = () => {
+            const ctx = contextRef.current;
+            const canvas = canvasRef.current;
+            if (!ctx || !canvas) return;
+
+            const dpr = dprRef.current;
+            // Use logical dimensions since context is scaled by dpr
+            const logicalWidth = canvas.width / dpr;
+            const logicalHeight = canvas.height / dpr;
+
+            // Center and fit image within logical dimensions
+            const scale = Math.min(logicalWidth / img.width, logicalHeight / img.height);
+            const w = img.width * scale;
+            const h = img.height * scale;
+            const x = (logicalWidth - w) / 2;
+            const y = (logicalHeight - h) / 2;
+
+            // 1. Draw original base image (flat)
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, logicalWidth, logicalHeight);
+            ctx.drawImage(img, x, y, w, h);
+            saveState();
+
+            // 2. Extract Line Art (create overlay) - use physical pixels for offscreen canvas
+            const offscreen = document.createElement('canvas');
+            offscreen.width = canvas.width;
+            offscreen.height = canvas.height;
+            const oCtx = offscreen.getContext('2d')!;
+
+            // Scale offscreen context to match main canvas
+            oCtx.scale(dpr, dpr);
+            // Draw image to offscreen at same logical position
+            oCtx.drawImage(img, x, y, w, h);
+
+            // Convert to transparent - work with physical pixels
+            const id = oCtx.getImageData(0, 0, canvas.width, canvas.height);
+            const d = id.data;
+            for (let i = 0; i < d.length; i += 4) {
+                const r = d[i];
+                const g = d[i + 1];
+                const b = d[i + 2];
+                // Simple threshold: if mostly white, make transparent
+                // Keeping black lines opaque
+                if (r > 200 && g > 200 && b > 200) {
+                    d[i + 3] = 0; // Alpha 0
+                }
+            }
+            oCtx.putImageData(id, 0, 0);
+            overlayRef.current = offscreen;
+        };
+        img.src = initialImage;
     }, [initialImage]);
+
+    const redrawLines = () => {
+        if (contextRef.current && overlayRef.current && canvasRef.current) {
+            const dpr = dprRef.current;
+            const logicalWidth = canvasRef.current.width / dpr;
+            const logicalHeight = canvasRef.current.height / dpr;
+            // Draw overlay at logical size since context is scaled
+            contextRef.current.drawImage(overlayRef.current, 0, 0, logicalWidth, logicalHeight);
+        }
+    };
 
     const saveState = () => {
         if (!canvasRef.current || !contextRef.current) return;
@@ -86,12 +140,18 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(({ tool, color, brushSize, ini
             newHistory.pop(); // Remove current state
             const prevState = newHistory[newHistory.length - 1];
             contextRef.current.putImageData(prevState, 0, 0);
+            redrawLines(); // Re-apply lines after undo
             setHistory(newHistory);
         },
         clear: () => {
             if (!contextRef.current || !canvasRef.current) return;
+            const dpr = dprRef.current;
+            const logicalWidth = canvasRef.current.width / dpr;
+            const logicalHeight = canvasRef.current.height / dpr;
             contextRef.current.fillStyle = 'white';
-            contextRef.current.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            contextRef.current.fillRect(0, 0, logicalWidth, logicalHeight);
+            // Re-apply lines if we have them
+            redrawLines();
             saveState();
         },
         save: () => {
@@ -109,8 +169,8 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(({ tool, color, brushSize, ini
         if (!canvas || !ctx) return;
 
         // Get coordinates
-        // Get coordinates
         const rect = canvas.getBoundingClientRect();
+        const dpr = dprRef.current;
 
         let clientX, clientY;
         if ('touches' in e) {
@@ -121,21 +181,22 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(({ tool, color, brushSize, ini
             clientY = (e as React.MouseEvent).clientY;
         }
 
-        // Account for any CSS scaling if logic width != display width
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-
-        const x = Math.floor((clientX - rect.left) * scaleX);
-        const y = Math.floor((clientY - rect.top) * scaleY);
+        // Convert to logical coordinates (context is already scaled by dpr)
+        const logicalX = clientX - rect.left;
+        const logicalY = clientY - rect.top;
 
         if (tool === 'bucket') {
-            floodFill(ctx, x, y, color);
+            // floodFill works with physical pixels via getImageData, so scale up
+            const physicalX = Math.floor(logicalX * dpr);
+            const physicalY = Math.floor(logicalY * dpr);
+            floodFill(ctx, physicalX, physicalY, color);
+            redrawLines(); // Put lines back on top
             saveState();
             return;
         }
 
         ctx.beginPath();
-        ctx.moveTo(x, y);
+        ctx.moveTo(logicalX, logicalY);
         ctx.strokeStyle = tool === 'eraser' ? 'white' : color;
         ctx.lineWidth = brushSize;
         setIsDrawing(true);
@@ -159,13 +220,11 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(({ tool, color, brushSize, ini
             clientY = (e as React.MouseEvent).clientY;
         }
 
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
+        // Use logical coordinates (context is already scaled by dpr)
+        const logicalX = clientX - rect.left;
+        const logicalY = clientY - rect.top;
 
-        const x = (clientX - rect.left) * scaleX;
-        const y = (clientY - rect.top) * scaleY;
-
-        ctx.lineTo(x, y);
+        ctx.lineTo(logicalX, logicalY);
         ctx.stroke();
     };
 
@@ -175,6 +234,7 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(({ tool, color, brushSize, ini
             contextRef.current.closePath();
         }
         setIsDrawing(false);
+        redrawLines(); // Re-apply lines on top after stroke completes
         saveState();
     };
 
@@ -193,7 +253,7 @@ const Canvas = forwardRef<CanvasRef, CanvasProps>(({ tool, color, brushSize, ini
                 height: '100%',
                 touchAction: 'none',
                 borderRadius: 'inherit',
-                cursor: tool === 'bucket' ? 'crosshair' : 'round'
+                cursor: tool === 'bucket' ? 'crosshair' : 'crosshair'
             }}
         />
     );

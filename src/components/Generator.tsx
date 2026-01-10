@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { Wand2 } from 'lucide-react';
-import { Settings } from './Settings';
 
 interface GeneratorProps {
-    onGenerate: (prompt: string, topic: string) => void;
+    onGenerate: (topic: string, complexity: string) => void;
     isLoading: boolean;
-    apiKey: string;
-    setApiKey: (key: string) => void;
 }
 
-export function Generator({ onGenerate, isLoading, apiKey, setApiKey }: GeneratorProps) {
+export function Generator({ onGenerate, isLoading }: GeneratorProps) {
     const [topic, setTopic] = useState('');
     const [age, setAge] = useState<'little' | 'big' | 'expert'>('little');
 
@@ -17,6 +14,8 @@ export function Generator({ onGenerate, isLoading, apiKey, setApiKey }: Generato
         e.preventDefault();
         if (!topic.trim()) return;
 
+        // For custom prompts via AI, just send the topic
+        // For pre-loaded assets, we need complexity info
         let complexity = '';
         switch (age) {
             case 'little': complexity = 'very simple, few details, large areas'; break;
@@ -24,9 +23,8 @@ export function Generator({ onGenerate, isLoading, apiKey, setApiKey }: Generato
             case 'expert': complexity = 'intricate details, complex patterns'; break;
         }
 
-        const prompt = `Simple black and white line art coloring book page of ${topic}, thick outlines, no shading, white background, child-friendly, ${complexity}`;
-
-        onGenerate(prompt, topic);
+        // Send both topic and complexity - imageGen will use what it needs
+        onGenerate(topic, complexity);
     };
 
     return (
@@ -42,7 +40,7 @@ export function Generator({ onGenerate, isLoading, apiKey, setApiKey }: Generato
             <div style={{ display: 'flex', gap: '8px', flex: 1, minWidth: '200px', flexDirection: 'column', alignItems: 'flex-start' }}>
                 <input
                     type="text"
-                    placeholder="What do you want to color? (e.g. Bluey, Dinosaurs)"
+                    placeholder="Pick a character below or type one!"
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
                     disabled={isLoading}
@@ -71,10 +69,10 @@ export function Generator({ onGenerate, isLoading, apiKey, setApiKey }: Generato
                             style={{
                                 padding: '8px',
                                 fontSize: '1.5rem',
-                                backgroundColor: '#f0f0f0',
+                                backgroundColor: topic === item.label ? '#d4edda' : '#f0f0f0',
                                 borderRadius: '12px',
                                 cursor: 'pointer',
-                                border: '1px solid #ddd',
+                                border: topic === item.label ? '2px solid #28a745' : '1px solid #ddd',
                                 minWidth: '44px',
                                 minHeight: '44px',
                                 display: 'flex',
@@ -128,7 +126,6 @@ export function Generator({ onGenerate, isLoading, apiKey, setApiKey }: Generato
                     <Wand2 size={20} />
                     {isLoading ? 'Creating...' : 'Create!'}
                 </button>
-                <Settings apiKey={apiKey} setApiKey={setApiKey} />
             </div>
         </div>
     );
