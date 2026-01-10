@@ -29,3 +29,79 @@ button {
   border: none;
   font-family: inherit;
 }
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 0.5rem !important;
+    gap: 0.5rem !important;
+  }
+
+  .app-header {
+    flex-direction: column !important;
+    padding: 0.75rem !important;
+    gap: 0.75rem !important;
+  }
+
+  .app-header h1 {
+    font-size: 1.4rem !important;
+  }
+
+  .app-main {
+    flex-direction: column !important;
+  }
+
+  .controls-panel {
+    width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    padding: 0.75rem !important;
+    gap: 0.75rem !important;
+    order: 2;
+  }
+
+  .controls-tools {
+    order: 1;
+  }
+
+  .controls-colors {
+    order: 2;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  .controls-colors button {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .controls-size {
+    order: 3;
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .controls-actions {
+    order: 4;
+    margin-top: 0 !important;
+  }
+
+  .canvas-container {
+    order: 1;
+    min-height: 300px;
+  }
+
+  .generator-container {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+
+  .generator-input {
+    width: 100% !important;
+  }
+
+  .generator-presets {
+    justify-content: center !important;
+  }
+}

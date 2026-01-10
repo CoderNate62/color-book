@@ -28,7 +28,7 @@ export function Generator({ onGenerate, isLoading }: GeneratorProps) {
     };
 
     return (
-        <div style={{
+        <div className="generator-container" style={{
             display: 'flex',
             gap: '1rem',
             alignItems: 'center',
@@ -37,7 +37,7 @@ export function Generator({ onGenerate, isLoading }: GeneratorProps) {
             borderRadius: 'var(--border-radius)',
             flexWrap: 'wrap'
         }}>
-            <div style={{ display: 'flex', gap: '8px', flex: 1, minWidth: '200px', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div className="generator-input" style={{ display: 'flex', gap: '8px', flex: 1, minWidth: '200px', flexDirection: 'column', alignItems: 'flex-start' }}>
                 <input
                     type="text"
                     placeholder="Pick a character below or type one!"
@@ -53,7 +53,7 @@ export function Generator({ onGenerate, isLoading }: GeneratorProps) {
                         outline: 'none'
                     }}
                 />
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <div className="generator-presets" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     {[
                         { label: 'Dinosaur', icon: '🦕' },
                         { label: 'Unicorn', icon: '🦄' },

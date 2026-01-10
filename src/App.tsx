@@ -34,7 +34,7 @@ function App() {
   };
 
   return (
-    <div style={{
+    <div className="app-container" style={{
       display: 'flex',
       flexDirection: 'column',
       height: '100vh',
@@ -42,9 +42,9 @@ function App() {
       margin: '0 auto',
       padding: '1rem',
       gap: '1rem',
-      position: 'relative' // For overlays if needed
+      position: 'relative'
     }}>
-      <header style={{
+      <header className="app-header" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -68,12 +68,12 @@ function App() {
         </div>
       </header>
 
-      <main style={{
+      <main className="app-main" style={{
         flex: 1,
         display: 'flex',
         gap: '1rem',
         overflow: 'hidden',
-        minHeight: 0 // Crucial for nested flex scrolling
+        minHeight: 0
       }}>
         <Controls
           tool={tool}
@@ -86,7 +86,7 @@ function App() {
           onSave={() => canvasRef.current?.save()}
         />
 
-        <div style={{
+        <div className="canvas-container" style={{
           flex: 1,
           backgroundColor: 'white',
           borderRadius: 'var(--border-radius)',
