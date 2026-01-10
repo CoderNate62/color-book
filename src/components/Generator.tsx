@@ -6,26 +6,31 @@ interface GeneratorProps {
     isLoading: boolean;
 }
 
+const PRESETS = [
+    { label: 'Dinosaur', icon: '🦕' },
+    { label: 'Unicorn', icon: '🦄' },
+    { label: 'Robot', icon: '🤖' },
+    { label: 'Butterfly', icon: '🦋' },
+    { label: 'Car', icon: '🚗' },
+    { label: 'Flower', icon: '🌸' },
+    { label: 'Spaceship', icon: '🚀' },
+    { label: 'Castle', icon: '🏰' },
+    { label: 'Dragon', icon: '🐉' },
+    { label: 'Cat', icon: '🐱' }
+];
+
 export function Generator({ onGenerate, isLoading }: GeneratorProps) {
     const [topic, setTopic] = useState('');
-    const [age, setAge] = useState<'little' | 'big' | 'expert'>('little');
 
     const handleGenerate = (e: React.FormEvent) => {
         e.preventDefault();
         if (!topic.trim()) return;
 
-        // For custom prompts via AI, just send the topic
-        // For pre-loaded assets, we need complexity info
-        let complexity = '';
-        switch (age) {
-            case 'little': complexity = 'very simple, few details, large areas'; break;
-            case 'big': complexity = 'moderate details, fun characters'; break;
-            case 'expert': complexity = 'intricate details, complex patterns'; break;
-        }
-
-        // Send both topic and complexity - imageGen will use what it needs
-        onGenerate(topic, complexity);
+        // Simple coloring pages for kids
+        onGenerate(topic, 'simple');
     };
+
+    const isCustom = topic.trim() && !PRESETS.some(p => p.label === topic);
 
     return (
         <div className="generator-container" style={{
@@ -53,15 +58,21 @@ export function Generator({ onGenerate, isLoading }: GeneratorProps) {
                         outline: 'none'
                     }}
                 />
+
+                {isCustom && (
+                    <div style={{
+                        fontSize: '0.85rem',
+                        color: '#666',
+                        fontStyle: 'italic',
+                        paddingLeft: '4px',
+                        animation: 'fadeIn 0.3s ease-in-out'
+                    }}>
+                        ✨ Custom images take about 10 seconds to generate
+                    </div>
+                )}
+
                 <div className="generator-presets" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    {[
-                        { label: 'Dinosaur', icon: '🦕' },
-                        { label: 'Unicorn', icon: '🦄' },
-                        { label: 'Robot', icon: '🤖' },
-                        { label: 'Butterfly', icon: '🦋' },
-                        { label: 'Car', icon: '🚗' },
-                        { label: 'Flower', icon: '🌸' }
-                    ].map(item => (
+                    {PRESETS.map(item => (
                         <button
                             key={item.label}
                             onClick={() => setTopic(item.label)}
@@ -87,24 +98,6 @@ export function Generator({ onGenerate, isLoading }: GeneratorProps) {
             </div>
 
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <select
-                    value={age}
-                    onChange={(e) => setAge(e.target.value as any)}
-                    disabled={isLoading}
-                    style={{
-                        padding: '12px',
-                        borderRadius: '8px',
-                        border: '2px solid #ddd',
-                        backgroundColor: 'white',
-                        fontSize: '1rem',
-                        cursor: 'pointer'
-                    }}
-                >
-                    <option value="little">Little Kid (4-5)</option>
-                    <option value="big">Big Kid (6-7)</option>
-                    <option value="expert">Expert (8+)</option>
-                </select>
-
                 <button
                     onClick={handleGenerate}
                     disabled={!topic.trim() || isLoading}

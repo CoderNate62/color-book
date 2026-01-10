@@ -13,8 +13,8 @@ interface MobileControlsProps {
 }
 
 const COLORS = [
-    '#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181',
-    '#F7D794', '#778BEB', '#cf6a87', '#596275', '#000000',
+    '#E53935', '#FDD835', '#1E88E5', '#FB8C00', '#43A047',
+    '#8E24AA', '#6D4C41', '#757575', '#000000', '#FFFFFF',
 ];
 
 export function MobileControls({ tool, setTool, color, setColor, brushSize, setBrushSize, onUndo, onSave }: MobileControlsProps) {
@@ -155,7 +155,7 @@ export function MobileControls({ tool, setTool, color, setColor, brushSize, setB
                                     height: '32px',
                                     borderRadius: '50%',
                                     backgroundColor: c,
-                                    border: c === color && tool !== 'eraser' ? '3px solid #fff' : '2px solid transparent',
+                                    border: c === color && tool !== 'eraser' ? '3px solid #fff' : (c === '#FFFFFF' ? '2px solid #ccc' : '2px solid transparent'),
                                     boxShadow: c === color && tool !== 'eraser' ? '0 0 0 2px var(--primary)' : 'none'
                                 }}
                             />

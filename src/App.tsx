@@ -14,7 +14,7 @@ import './index.css';
 
 function App() {
   const [tool, setTool] = useState<'brush' | 'bucket' | 'eraser'>('brush');
-  const [color, setColor] = useState('#FF6B6B');
+  const [color, setColor] = useState('#E53935');
   const [brushSize, setBrushSize] = useState(10);
   const [bgImage, setBgImage] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
