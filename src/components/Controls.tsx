@@ -26,7 +26,7 @@ const COLORS = [
 
 export function Controls({ tool, setTool, color, setColor, brushSize, setBrushSize, onUndo, onSave }: ControlsProps) {
     return (
-        <div style={{
+        <div className="controls-panel" style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '1rem',
@@ -39,7 +39,7 @@ export function Controls({ tool, setTool, color, setColor, brushSize, setBrushSi
         }}>
 
             {/* Tools */}
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+            <div className="controls-tools" style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
                 <button
                     onClick={() => setTool('brush')}
                     style={{
@@ -83,7 +83,7 @@ export function Controls({ tool, setTool, color, setColor, brushSize, setBrushSi
 
             {/* Brush Size */}
             {(tool === 'brush' || tool === 'eraser') && (
-                <div style={{ padding: '0 0.5rem' }}>
+                <div className="controls-size" style={{ padding: '0 0.5rem' }}>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#666' }}>
                         Size
                     </label>
@@ -99,7 +99,7 @@ export function Controls({ tool, setTool, color, setColor, brushSize, setBrushSi
             )}
 
             {/* Colors */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+            <div className="controls-colors" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
                 {COLORS.map(c => (
                     <button
                         key={c}
@@ -122,7 +122,7 @@ export function Controls({ tool, setTool, color, setColor, brushSize, setBrushSi
             </div>
 
             {/* Actions */}
-            <div style={{ marginTop: 'auto', display: 'flex', gap: '0.5rem' }}>
+            <div className="controls-actions" style={{ marginTop: 'auto', display: 'flex', gap: '0.5rem' }}>
                 <button
                     onClick={onUndo}
                     style={{
